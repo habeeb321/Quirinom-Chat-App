@@ -1,20 +1,61 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:qurinom_chat_app/screens/home/home_screen.dart';
+import 'package:qurinom_chat_app/screens/login/model/login_model.dart';
+import 'package:qurinom_chat_app/screens/login/service/login_service.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  
-  var selectedUserType = 'Customer'.obs;
+
+  Rx<LoginModel?> loginModel = LoginModel().obs;
+
+  var selectedUserType = 'vendor'.obs;
   var isPasswordVisible = false.obs;
-  var isLoading = false.obs;
+  var loading = false.obs;
 
   @override
   void onClose() {
     emailController.dispose();
     passwordController.dispose();
     super.onClose();
+  }
+
+  Future<void> fetchLogin() async {
+    loading.value = true;
+    try {
+      LoginModel? result = await LoginService.getLogin(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+        role: selectedUserType.value,
+      );
+
+      if (result != null) {
+        loginModel.value = result;
+        Get.to(() => const HomeScreen());
+        Get.snackbar(
+          'Success',
+          'Login successful!',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          'Failed',
+          'Login Failed Please Try Again!',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      log("fetchLogin Error: $e");
+    }
+    loading.value = false;
   }
 
   void togglePasswordVisibility() {
@@ -27,16 +68,7 @@ class LoginController extends GetxController {
 
   void handleLogin() async {
     if (formKey.currentState!.validate()) {
-      isLoading.value = true;
-      await Future.delayed(const Duration(seconds: 2));
-      isLoading.value = false;
-      
-      Get.snackbar(
-        'Success',
-        'Login successful!',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      fetchLogin();
     }
   }
 }

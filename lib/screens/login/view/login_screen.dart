@@ -87,14 +87,14 @@ class LoginScreen extends StatelessWidget {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () =>
-                                    controller.selectUserType('Customer'),
+                                    controller.selectUserType('customer'),
                                 child: Obx(() => Container(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 16),
                                       decoration: BoxDecoration(
                                         color:
                                             controller.selectedUserType.value ==
-                                                    'Customer'
+                                                    'customer'
                                                 ? Colors.blue[600]
                                                 : Colors.transparent,
                                         borderRadius: BorderRadius.circular(12),
@@ -107,18 +107,18 @@ class LoginScreen extends StatelessWidget {
                                             Icons.person,
                                             color: controller.selectedUserType
                                                         .value ==
-                                                    'Customer'
+                                                    'customer'
                                                 ? Colors.white
                                                 : Colors.grey[600],
                                             size: 20,
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'Customer',
+                                            'customer',
                                             style: TextStyle(
                                               color: controller.selectedUserType
                                                           .value ==
-                                                      'Customer'
+                                                      'customer'
                                                   ? Colors.white
                                                   : Colors.grey[600],
                                               fontWeight: FontWeight.w600,
@@ -133,14 +133,14 @@ class LoginScreen extends StatelessWidget {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () =>
-                                    controller.selectUserType('Vendor'),
+                                    controller.selectUserType('vendor'),
                                 child: Obx(() => Container(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 16),
                                       decoration: BoxDecoration(
                                         color:
                                             controller.selectedUserType.value ==
-                                                    'Vendor'
+                                                    'vendor'
                                                 ? Colors.blue[600]
                                                 : Colors.transparent,
                                         borderRadius: BorderRadius.circular(12),
@@ -153,18 +153,18 @@ class LoginScreen extends StatelessWidget {
                                             Icons.store,
                                             color: controller.selectedUserType
                                                         .value ==
-                                                    'Vendor'
+                                                    'vendor'
                                                 ? Colors.white
                                                 : Colors.grey[600],
                                             size: 20,
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'Vendor',
+                                            'vendor',
                                             style: TextStyle(
                                               color: controller.selectedUserType
                                                           .value ==
-                                                      'Vendor'
+                                                      'vendor'
                                                   ? Colors.white
                                                   : Colors.grey[600],
                                               fontWeight: FontWeight.w600,
@@ -307,37 +307,38 @@ class LoginScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         height: 56,
-                        child: Obx(() => ElevatedButton(
-                              onPressed: controller.isLoading.value
-                                  ? null
-                                  : controller.handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue[600],
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
+                        child: Obx(
+                          () => ElevatedButton(
+                            onPressed: controller.loading.value
+                                ? null
+                                : controller.handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue[600],
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: controller.isLoading.value
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.white),
-                                      ),
-                                    )
-                                  : const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                              elevation: 2,
+                            ),
+                            child: controller.loading.value
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
-                            )),
+                                  )
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 32),
                       Row(
