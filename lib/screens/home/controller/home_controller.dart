@@ -1,8 +1,8 @@
 import 'dart:developer';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:qurinom_chat_app/screens/home/model/chats_model.dart';
+import 'package:qurinom_chat_app/screens/home/model/send_message_model.dart';
 import 'package:qurinom_chat_app/screens/home/model/specific_chat_model.dart'
     as SpecificModel;
 import 'package:qurinom_chat_app/screens/home/service/home_service.dart';
@@ -12,6 +12,8 @@ class HomeController extends GetxController {
   RxList<ChatsModel> chatsList = <ChatsModel>[].obs;
   RxList<SpecificModel.SpecificChatModel> specificChatsList =
       <SpecificModel.SpecificChatModel>[].obs;
+  Rx<SendMessageModel?> sendMessageModel = SendMessageModel().obs;
+
   FlutterSecureStorage storage = const FlutterSecureStorage();
 
   var loading = false.obs;
@@ -79,13 +81,26 @@ class HomeController extends GetxController {
     loading.value = false;
   }
 
-  Future<void> sendMessage(String chatId, String content,
-      {SpecificModel.MessageType? messageType}) async {
+  Future<void> fetchSendMessage(
+    String chatId,
+    String senderId,
+    String content,
+  ) async {
+    loading.value = true;
     try {
-      await fetchSpecificChats(chatId);
+      SendMessageModel? result = await HomeService.sendMessage(
+        chatId: chatId,
+        senderId: senderId,
+        content: content,
+      );
+
+      if (result != null) {
+        sendMessageModel.value = result;
+      }
     } catch (e) {
-      log("sendMessage Error: $e");
+      log("fetchSendMessage Error: $e");
     }
+    loading.value = false;
   }
 
   Future<void> markAsRead(String chatId) async {

@@ -18,6 +18,7 @@ class ChatDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
+    final TextEditingController messageController = TextEditingController();
 
     // Fetch specific chats when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -109,7 +110,7 @@ class ChatDetailsScreen extends StatelessWidget {
               );
             }),
           ),
-          _buildMessageInput(),
+          _buildMessageInput(controller, messageController),
         ],
       ),
     );
@@ -157,7 +158,6 @@ class ChatDetailsScreen extends StatelessWidget {
 
   Widget _buildMessageItem(
       SpecificModel.SpecificChatModel message, HomeController controller) {
-    // Check if message is from current user (you'll need to implement user ID check)
     final isCurrentUser = _isCurrentUser(message.senderId.toString());
 
     return Container(
@@ -328,7 +328,8 @@ class ChatDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageInput() {
+  Widget _buildMessageInput(
+      HomeController controller, TextEditingController messageController) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -351,6 +352,7 @@ class ChatDetailsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
               ),
               child: TextField(
+                controller: messageController,
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
                   border: InputBorder.none,
@@ -362,28 +364,86 @@ class ChatDetailsScreen extends StatelessWidget {
                     color: Colors.grey[500],
                   ),
                 ),
+                onSubmitted: (value) {
+                  _sendMessage(controller, messageController);
+                },
               ),
             ),
           ),
           const SizedBox(width: 8),
-          IconButton(
-            onPressed: () {},
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue[600],
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.send,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
+          Obx(() => IconButton(
+                onPressed: controller.loading.value
+                    ? null
+                    : () => _sendMessage(controller, messageController),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: controller.loading.value
+                        ? Colors.grey[400]
+                        : Colors.blue[600],
+                    shape: BoxShape.circle,
+                  ),
+                  child: controller.loading.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.send,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                ),
+              )),
         ],
       ),
     );
+  }
+
+  void _sendMessage(HomeController controller,
+      TextEditingController messageController) async {
+    final message = messageController.text.trim();
+    if (message.isEmpty) return;
+
+    // Clear the input field immediately
+    messageController.clear();
+
+    try {
+      // Send the message
+      await controller.fetchSendMessage(
+        chatId,
+        controller.currentUserId.value,
+        message,
+      );
+
+      // Refresh the chat messages after sending
+      await controller.fetchSpecificChats(chatId);
+
+      // Show success message
+      Get.snackbar(
+        'Success',
+        'Message sent successfully!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      // Show error message
+      Get.snackbar(
+        'Error',
+        'Failed to send message. Please try again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    }
   }
 
   bool _isCurrentUser(String senderId) {
