@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qurinom_chat_app/screens/home/controller/home_controller.dart';
 import 'package:qurinom_chat_app/screens/home/model/chats_model.dart';
+import 'package:qurinom_chat_app/screens/home/view/chat_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -121,7 +122,16 @@ class HomeScreen extends StatelessWidget {
         chat.participants?.isNotEmpty == true ? chat.participants!.first : null;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        if (chat.id != null) {
+          Get.to(
+            () => ChatDetailsScreen(
+              chat: chat,
+              chatId: chat.id!,
+            ),
+          );
+        }
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
